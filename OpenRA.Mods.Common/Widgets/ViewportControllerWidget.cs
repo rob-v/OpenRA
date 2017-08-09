@@ -303,7 +303,7 @@ namespace OpenRA.Mods.Common.Widgets
 				scrollType = Game.Settings.Game.RightMouseScroll;
 
 			if (scrollType == MouseScrollType.Disabled)
-				return IsJoystickScrolling || isStandardScrolling;
+				return isStandardScrolling || IsJoystickScrolling;
 
 			if (scrollType == MouseScrollType.Standard || scrollType == MouseScrollType.Inverted)
 			{
@@ -320,7 +320,6 @@ namespace OpenRA.Mods.Common.Widgets
 					isStandardScrolling = true;
 					var d = scrollType == MouseScrollType.Inverted ? -1 : 1;
 					worldRenderer.Viewport.Scroll((Viewport.LastMousePos - mi.Location) * d, false);
-					return true;
 				}
 				else if (mi.Event == MouseInputEvent.Up)
 				{
@@ -344,28 +343,24 @@ namespace OpenRA.Mods.Common.Widgets
 
 					joystickScrollStart = mi.Location;
 				}
-
-				if (mi.Event == MouseInputEvent.Up)
-				{
-					var wasJoystickScrolling = IsJoystickScrolling;
-
-					joystickScrollStart = joystickScrollEnd = null;
-					YieldMouseFocus(mi);
-
-					if (wasJoystickScrolling)
-						return true;
-				}
-
-				if (mi.Event == MouseInputEvent.Move)
+				else if (mi.Event == MouseInputEvent.Move)
 				{
 					if (!joystickScrollStart.HasValue)
 						joystickScrollStart = mi.Location;
 
 					joystickScrollEnd = mi.Location;
 				}
+				else if (mi.Event == MouseInputEvent.Up)
+				{
+					var wasJoystickScrolling = IsJoystickScrolling;
+					YieldMouseFocus(mi);
+
+					if (wasJoystickScrolling)
+						return true;
+				}
 			}
 
-			return IsJoystickScrolling || isStandardScrolling;
+			return isStandardScrolling || IsJoystickScrolling;
 		}
 
 		public override bool YieldMouseFocus(MouseInput mi)
